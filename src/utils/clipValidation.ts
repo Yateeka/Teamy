@@ -1,0 +1,1 @@
+export const validateClip = (start: number | null, end: number | null) => ({ valid: start !== null && end !== null && end > start && end - start <= 10, duration: start !== null && end !== null ? end - start : 0 });

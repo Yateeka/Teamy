@@ -1,0 +1,5 @@
+import { useState } from 'react';
+import { ArrowUpRight, Circle, Eraser, Pencil } from 'lucide-react';
+import type { PitchAnnotation } from '../types/tracking';
+type Mode=PitchAnnotation['kind']|null;
+export default function PitchAnnotationTools({mode,setMode,playing,onClear,count}:{mode:Mode;setMode:(mode:Mode)=>void;playing:boolean;onClear:()=>void;count:number}){const [open,setOpen]=useState(false);return <div className="annotation-tool-wrap"><button className={`annotate-trigger ${open?'active':''}`} onClick={()=>{setOpen(v=>!v);if(open)setMode(null);}}><Pencil size={13}/> Annotate</button>{open&&<div className="annotation-tools"><span>{playing?'Pause to draw':'DRAW ON PITCH'}</span><button disabled={playing} className={mode==='arrow'?'active':''} onClick={()=>setMode(mode==='arrow'?null:'arrow')}><ArrowUpRight size={14}/> Arrow</button><button disabled={playing} className={mode==='circle'?'active':''} onClick={()=>setMode(mode==='circle'?null:'circle')}><Circle size={13}/> Circle</button><button disabled={!count} onClick={onClear}><Eraser size={13}/> Clear</button></div>}</div>}
