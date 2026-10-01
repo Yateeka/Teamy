@@ -4,12 +4,15 @@ import { derivePhysicalMetrics } from '../utils/derivePhysicalMetrics';
 import type { MatchOption, TrackingFrame } from '../types/tracking';
 
 type MatchManifestRow = { id: string | number; date_time?: string; home_team?: { id?: number; short_name?: string; name?: string }; away_team?: { id?: number; short_name?: string; name?: string }; competition_id?: number };
-const dataRoot = '/data';
+const repositoryRoot = 'https://raw.githubusercontent.com/SkillCorner/opendata/master/data';
+// Git LFS files served from raw.githubusercontent.com are only pointer files. The
+// media host serves the actual public LFS object.
+const trackingRoot = 'https://media.githubusercontent.com/media/SkillCorner/opendata/master/data';
 
 /** Lists locally prepared SkillCorner games. Mocks remain available if no manifest is present. */
 export async function discoverMatches(): Promise<MatchOption[]> {
   try {
-    const response = await fetch(`${dataRoot}/matches.json`, { cache: 'no-store' });
+    const response = await fetch(`${repositoryRoot}/matches.json`);
     if (!response.ok) return mockMatches;
     const rows = await response.json() as MatchManifestRow[];
     if (!Array.isArray(rows) || rows.length === 0) return mockMatches;
@@ -31,13 +34,16 @@ export async function loadMatch(match: MatchOption): Promise<{ match: MatchOptio
     return { match, frames: derivePhysicalMetrics(createMockFrames(match.duration)) };
   }
   if (match.source !== 'skillcorner') throw new Error('Choose a match or load a tracking file.');
-  const folder = `${dataRoot}/matches/${encodeURIComponent(match.id)}`;
+  const folder = `${repositoryRoot}/matches/${encodeURIComponent(match.id)}`;
+  const trackingFile = `${encodeURIComponent(match.id)}_tracking_extrapolated.jsonl`;
   const [matchResponse, trackingResponse] = await Promise.all([
     fetch(`${folder}/${encodeURIComponent(match.id)}_match.json`),
-    fetch(`${folder}/${encodeURIComponent(match.id)}_tracking_extrapolated.jsonl`)
+    fetch(`${trackingRoot}/matches/${encodeURIComponent(match.id)}/${trackingFile}`)
   ]);
-  if (!matchResponse.ok || !trackingResponse.ok) throw new Error(`Could not find the local tracking files for ${match.name}. Add the match folder under public/data/matches/${match.id}.`);
+  if (!matchResponse.ok) throw new Error(`Could not load match details for ${match.name} from SkillCorner Open Data (HTTP ${matchResponse.status}).`);
+  if (!trackingResponse.ok) throw new Error(`Could not download tracking data for ${match.name} from SkillCorner Open Data (HTTP ${trackingResponse.status}).`);
   const [metadata, trackingText] = await Promise.all([matchResponse.json(), trackingResponse.text()]);
+  if (trackingText.startsWith('version https://git-lfs.github.com/spec/v1')) throw new Error('GitHub returned a Git LFS pointer instead of tracking data. Try again later or load the tracking file locally.');
   const rawFrames = trackingText.split(/\r?\n/).filter(line => line.trim()).map((line, index) => {
     try { return JSON.parse(line) as unknown; }
     catch { throw new Error(`Tracking data could not be read at line ${index + 1}. Check that Git LFS downloaded the file contents.`); }
