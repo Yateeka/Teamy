@@ -56,3 +56,27 @@ SkillCorner manifest + selected match files
 - **Clip sharing:** links carry `/match/:id?start=...&end=...`; a prepared local match with that ID opens at the same range.
 
 Clips are currently stored in memory for this UI phase. A later backend can persist clips and serve an authorized game list while keeping the same browser-facing normalized contract.
+
+## Team Contributions
+
+Matchflow was developed as a collaborative project for the US Soccer × ColorStack Tech League Hackathon. The team worked together across product ideation, development, design, testing, branding, and presentation.
+
+### Yateeka Goyal | Team Captain & Developer
+* Led the team and technical development throughout the hackathon
+* Developed and implemented the Matchflow application
+* Translated team concepts, feature ideas, and feedback into the working product
+
+### La'Niya Robinson | Product, Design & Presentation
+* Collaborated on the product concept, feature direction, and overall user experience
+* Created the Matchflow name and helped shape the branding and visual theme
+* Contributed to product testing and the development and delivery of the final presentation
+
+### Amy Birkneh | Design & Presentation
+* Contributed to the visual design and overall presentation direction
+* Helped develop and refine the final hackathon presentation
+* Reviewed the product and provided feedback on the final experience
+
+### Madhuri Tumula | Product Feedback & Review
+* Reviewed the application and provided feedback throughout the project
+* Contributed ideas and input on product decisions
+* Helped evaluate and refine the final project experience
